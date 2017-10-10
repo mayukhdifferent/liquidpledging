@@ -1,6 +1,6 @@
 {
   "name": "liquidpledging",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Liquid Pledging Smart Contract",
   "main": "index.js",
   "directories": {
@@ -51,6 +51,6 @@
   "dependencies": {
     "async": "^2.4.0",
     "chai": "^4.1.0",
-    "eth-contract-class": "0.0.4"
+    "eth-contract-class": "0.0.5"
   }
 }
