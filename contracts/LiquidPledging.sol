@@ -22,7 +22,7 @@ contract LiquidPledging is LiquidPledgingBase {
     /// @param idReceiver To whom it's transfered. Can be the same giver, another
     ///  giver, a delegate or a project
 
-function donate(uint64 idGiver, uint64 idReceiver) payable {
+    function donate(uint64 idGiver, uint64 idReceiver) payable {
         if (idGiver == 0) {
             idGiver = addGiver('', '', 259200, ILiquidPledgingPlugin(0x0)); // default to 3 day commitTime
         }
@@ -179,9 +179,6 @@ function donate(uint64 idGiver, uint64 idReceiver) payable {
 
         require(n.paymentState == PaymentState.Paying);
 
-        // Check the project is not canceled in the while.
-        require(getOldestPledgeNotCanceled(idPledge) == idPledge);
-
         uint64 idNewPledge = findOrCreatePledge(
             n.owner,
             n.delegationChain,
@@ -232,11 +229,13 @@ function donate(uint64 idGiver, uint64 idReceiver) payable {
         idPledge = normalizePledge(idPledge);
 
         Pledge storage n = findPledge(idPledge);
+        require(n.oldPledge != 0);
 
         PledgeAdmin storage m = findAdmin(n.owner);
         checkAdminOwner(m);
 
-        doTransfer(idPledge, n.oldPledge, amount);
+        uint64 oldPledge = getOldestPledgeNotCanceled(n.oldPledge);
+        doTransfer(idPledge, oldPledge, amount);
     }
 
 
@@ -283,11 +282,9 @@ function donate(uint64 idGiver, uint64 idReceiver) payable {
         }
     }
 
-    function mNormalizePledge(uint[] pledges) returns(uint64) {
+    function mNormalizePledge(uint64[] pledges) {
         for (uint i = 0; i < pledges.length; i++ ) {
-            uint64 idPledge = uint64( pledges[i] & (D64-1) );
-
-            normalizePledge(idPledge);
+            normalizePledge( pledges[i] );
         }
     }
 
